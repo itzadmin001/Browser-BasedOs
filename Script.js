@@ -7,13 +7,18 @@ let files = JSON.parse(localStorage.getItem("files"));
 function updateTaskbarClock() {
     const now = new Date();
     let hours = now.getHours();
-    let seconds = now.getSeconds()
+    let seconds = now.getSeconds().toString().padStart(2, '0');
     const minutes = now.getMinutes().toString().padStart(2, '0');
     const ampm = hours >= 12 ? 'PM' : 'AM';
     hours = hours % 12 || 12;
-    const timeStr = `${hours}:${minutes}:${seconds} ${ampm}`;
-    const dateStr = now.toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' });
+    const formattedHours = hours < 10 ? '0' + hours : hours;
 
+    const timeStr = `${formattedHours}:${minutes}:${seconds} ${ampm}`;
+    const dateStr = now.toLocaleDateString(undefined, {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+    });
 
     document.getElementById('taskbar-time').textContent = timeStr;
     document.getElementById('taskbar-date').textContent = dateStr;
