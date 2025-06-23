@@ -1,210 +1,232 @@
-let folders = JSON.parse(localStorage.getItem("folders")) || [
-    { name: "DemoFolder", icon: "ri-folder-2-fill", children: [] }
-];
-let files = JSON.parse(localStorage.getItem("files"));
+let zCounter = 10;
+let desktopIcons = document.querySelectorAll('.desktop-icon');
+let desktop = document.getElementById('desktop');
+let explorerCount = 0;
 
-
+// --- Desktop Icon Drag ---
 function updateTaskbarClock() {
-    const now = new Date();
-    let hours = now.getHours();
-    let seconds = now.getSeconds().toString().padStart(2, '0');
-    const minutes = now.getMinutes().toString().padStart(2, '0');
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    hours = hours % 12 || 12;
-    const formattedHours = hours < 10 ? '0' + hours : hours;
+    const clock = document.querySelector('#taskbar .clock');
+    const date = document.querySelector('#taskbar .date');
+    if (clock) clock.textContent = new Date().toLocaleTimeString();
+    if (date) date.textContent = new Date().toLocaleDateString();
+}
+updateTaskbarClock();
+setInterval(updateTaskbarClock, 1000);
 
-    const timeStr = `${formattedHours}:${minutes}:${seconds} ${ampm}`;
-    const dateStr = now.toLocaleDateString(undefined, {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric'
+desktopIcons.forEach(icon => {
+    icon.onmousedown = function (e) {
+        if (e.button !== 0) return;
+        let shiftX = e.clientX - icon.getBoundingClientRect().left;
+        let shiftY = e.clientY - icon.getBoundingClientRect().top;
+        icon.style.zIndex = ++zCounter;
+        function moveAt(pageX, pageY) {
+            let dx = Math.max(0, Math.min(pageX - shiftX, desktop.offsetWidth - icon.offsetWidth));
+            let dy = Math.max(0, Math.min(pageY - shiftY, desktop.offsetHeight - icon.offsetHeight));
+            icon.style.left = dx + 'px';
+            icon.style.top = dy + 'px';
+        }
+        function onMouseMove(e) { moveAt(e.pageX, e.pageY); }
+        document.addEventListener('mousemove', onMouseMove);
+        document.onmouseup = function () {
+            document.removeEventListener('mousemove', onMouseMove);
+            document.onmouseup = null;
+        };
+    };
+    icon.ondragstart = () => false;
+});
+
+// --- File Explorer Open ---
+document.getElementById('fileExplorer').ondblclick = () => openExplorerWindow('Desktop');
+
+// --- File Explorer Window Logic ---
+const folderIcons = {
+    'Desktop': 'images/icons8-monitor-40.png',
+    'Downloads': 'images/icons8-download-40.png',
+    'Images': 'images/icons8-image-40.png',
+    'Videos': 'images/icons8-movies-folder-40.png',
+    'C Drive': 'images/icons8-c-drive-40.png',
+    'New Drive': 'images/icons8-usb-memory-stick-40.png',
+    'New Folder': 'images/icons8-folder.svg',
+    'My PC': 'images/icons8-monitor-40.png',
+    'Text File': 'images/icons8-file.svg'
+};
+const folderStructure = {
+    'Desktop': ['New Folder', 'Text File'],
+    'Downloads': [],
+    'Images': [],
+    'Videos': [],
+    'C Drive': [],
+    'New Drive': [],
+    'New Folder': [],
+    'My PC': []
+};
+
+function openExplorerWindow(currentFolder) {
+    explorerCount++;
+    let win = document.createElement('div');
+    win.className = 'file-explorer-window active';
+    win.style.left = (60 + explorerCount * 30) + 'px';
+    win.style.top = (60 + explorerCount * 30) + 'px';
+    win.style.zIndex = ++zCounter;
+
+    // --- Window Header ---
+    win.innerHTML = `
+        <div class="window-header">
+            <span class="window-title">File Explorer</span>
+            <div class="window-controls">
+                <button class="min-btn" title="Minimize">_</button>
+                <button class="max-btn" title="Maximize">&#9633;</button>
+                <button class="close-btn" title="Close">&times;</button>
+            </div>
+        </div>
+        <div class="window-content">
+            <div class="window-sidebar"></div>
+            <div class="window-main">
+                <div class="main-toolbar">
+                    <button class="new-btn">New</button>
+                </div>
+                <div class="file-list"></div>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(win);
+    setTimeout(() => win.classList.add('active'), 10);
+    focusWindow(win)
+
+    // Sidebar
+    let sidebar = win.querySelector('.window-sidebar');
+    Object.keys(folderStructure).forEach(folder => {
+        let div = document.createElement('div');
+        div.className = 'sidebar-item' + (folder === currentFolder ? ' active' : '');
+        div.innerHTML = `<img src="${folderIcons[folder] || folderIcons['New Folder']}" width="18"> ${folder}`;
+        div.onclick = () => {
+            openExplorerWindow(folder);
+        };
+        sidebar.appendChild(div);
     });
 
-    document.getElementById('taskbar-time').textContent = timeStr;
-    document.getElementById('taskbar-date').textContent = dateStr;
-}
-
-setInterval(updateTaskbarClock, 1000);
-updateTaskbarClock();
-
-
-
-function startMenuShow() {
-    const startMenu = document.getElementById('startmenu');
-    startMenu.classList.toggle('show');
-}
-
-document.addEventListener('keydown', function (e) {
-
-    if (e.key === 'Meta') {
-        startMenuShow();
+    // File List
+    function renderFileList() {
+        let fileList = win.querySelector('.file-list');
+        fileList.innerHTML = '';
+        let files = folderStructure[currentFolder] || [];
+        files.forEach(file => {
+            let fileDiv = document.createElement('div');
+            fileDiv.className = 'file-item';
+            fileDiv.innerHTML = `<img src="${folderIcons[file] || folderIcons['Text File']}"><span>${file}</span>`;
+            fileDiv.ondblclick = () => openExplorerWindow(file);
+            fileList.appendChild(fileDiv);
+        });
     }
-});
+    renderFileList();
 
+    // New Button
+    win.querySelector('.new-btn').onclick = () => {
+        let name = prompt('Enter file/folder name (add .txt for file):');
+        if (!name) return;
+        let isFile = name.endsWith('.txt');
+        folderStructure[currentFolder].push(name);
+        folderIcons[name] = isFile ? 'images/icons8-file.svg' : 'images/icons8-folder.svg';
+        renderFileList();
+    };
 
-
-
-function MiniMizeWindow() {
-    const thisPc = document.querySelector(".ThisPc");
-    thisPc.classList.toggle('show');
-
-
-}
-const explorerWindow = document.querySelector('.explorer-window');
-const contextMenu = document.getElementById('explorerContextMenu');
-
-explorerWindow.addEventListener('contextmenu', function (e) {
-    e.preventDefault();
-    if (explorerWindow.classList.length <= 1) {
-        FullSizeScreen()
-        contextMenu.style.display = 'block';
-        contextMenu.style.left = `${e.pageX}px`;
-        contextMenu.style.top = `${e.pageY}px`;
-    } else {
-        contextMenu.style.display = 'block';
-        contextMenu.style.left = `${e.pageX}px`;
-        contextMenu.style.top = `${e.pageY}px`;
-    }
-});
-
-window.addEventListener('click', function () {
-    contextMenu.style.display = 'none';
-});
-
-
-function FullSizeScreen() {
-    const thisPc = document.querySelector(".ThisPc");
-    const explorerWindow = document.querySelector(".explorer-window")
-    thisPc.classList.toggle('positionChange');
-    explorerWindow.classList.toggle('fullscreen');
-}
-
-
-function CreateNewFolder() {
-    const folderName = prompt("Enter new folder name:");
-    if (folderName && folderName.trim() !== "") {
-        folders.push({ name: folderName, icon: "ri-folder-2-fill" });
-        renderFolders();
-        localStorage.setItem("folders", JSON.stringify(folders));
-    }
-}
-
-function renderFolders(folders, files) {
-    const explorerFolders = document.querySelector(".explorer-folders");
-    let data = '';
-
-    if (folders) {
-        data += folders.map((folder, i) =>
-            `<div class="folder"  onclick="openItem('folder',${i})" key="${i}">
-                <i class="${folder.icon}"></i> ${folder.name}
-            </div>`
-        ).join('');
-    }
-
-    if (files) {
-        data += files.map((file, i) =>
-            `<div class="file" key="${i}"  onclick="openItem('file',${i})">
-                <img src="${file.imgIcon}" alt="file" style="width:90px;height:80px;display:block;margin:auto;"> ${file.name}
-            </div>`
-        ).join('');
-    }
-    explorerFolders.innerHTML = data;
-}
-
-function createNewfiles(id = null) {
-    if (id == null) {
-        let filesName = prompt("Enter new File name:");
-        if (filesName && filesName.trim() !== "") {
-            filesName = filesName.trim();
-            if (!filesName.includes('.')) {
-                filesName += '.txt';
-            }
-            files.push({ name: filesName, imgIcon: "./images/icons8-file.svg" });
-            localStorage.setItem("files", JSON.stringify(files));
-            renderFolders(folders, files);
-        }
-    }
-}
-
-// function deletefolders(data, id) {
-//     if (data == "folder") {
-//         folders.splice(id, 1);
-//         localStorage.setItem("folders", JSON.stringify(folders));
-//         renderFolders(folders, files);
-//     } else if (data == "files") {
-//         files.splice(id, 1);
-//         localStorage.setItem("files", JSON.stringify(files));
-//         renderFolders(folders, files);
-//     }
-// }
-renderFolders(folders, files)
-
-
-function openItem(type, index) {
-    let content = '';
-    let title = '';
-    if (type === 'folder') {
-        const folder = folders[index];
-        title = folder.name;
-        if (folder.children && folder.children.length > 0) {
-            content = folder.children.map(child =>
-                child.icon
-                    ? `<div class="folder"><i class="${child.icon}"></i> ${child.name}</div>`
-                    : `<div class="file"><img src="${child.imgIcon}" alt="file" style="width:60px;height:50px;display:block;margin:auto;"> ${child.name}</div>`
-            ).join('');
+    // Window Controls
+    win.querySelector('.min-btn').onclick = () => { win.style.display = 'none'; };
+    win.querySelector('.max-btn').onclick = () => {
+        if (win.classList.contains('maximized')) {
+            win.classList.remove('maximized');
+            win.style.left = win.dataset.prevLeft;
+            win.style.top = win.dataset.prevTop;
+            win.style.width = win.dataset.prevWidth;
+            win.style.height = win.dataset.prevHeight;
         } else {
-            content = `<div style="color:#aaa;text-align:center;padding:40px;">Empty</div>`;
+            win.dataset.prevLeft = win.style.left;
+            win.dataset.prevTop = win.style.top;
+            win.dataset.prevWidth = win.style.width;
+            win.dataset.prevHeight = win.style.height;
+            win.classList.add('maximized');
+            win.style.left = '0px'; win.style.top = '0px';
+            win.style.width = '100vw'; win.style.height = 'calc(100vh - 40px)';
         }
-        // Open folder window
-        const win = document.createElement('div');
-        win.className = 'explorer-window child-window';
-        win.style.position = 'fixed';
-        win.style.top = '120px';
-        win.style.left = '120px';
-        win.style.width = '400px';
-        win.style.zIndex = 4000;
-        win.innerHTML = `
-            <div class="explorer-titlebar">
-                <span class="explorer-title"><i class="ri-folder-2-fill"></i> ${title}</span>
-                <div class="explorer-controls">
-                    <button class="explorer-btn close" title="Close" onclick="this.parentElement.parentElement.parentElement.remove()"><i class="ri-close-line"></i></button>
-                </div>
-            </div>
-            <div class="explorer-content" style="height:200px;overflow:auto;">
-                <div class="explorer-folders">${content}</div>
-            </div>
-        `;
-        document.body.appendChild(win);
-    } else if (type === 'file') {
-        const file = files[index];
-        openNotepadModal(file);
-    }
+    };
+    win.querySelector('.close-btn').onclick = () => { clearInterval(clockInterval); win.remove(); };
+
+
+    // Clock
+    let clock = win.querySelector('.clock');
+    function updateClock() { if (clock) clock.textContent = new Date().toLocaleTimeString(); }
+    updateClock();
+    let clockInterval = setInterval(updateClock, 1000);
+
+    // Focus logic
+    win.onmousedown = () => focusWindow(win);
+
+    // Drag logic
+    let header = win.querySelector('.window-header');
+    header.onmousedown = function (e) {
+        if (e.button !== 0) return;
+        focusWindow(win);
+        let shiftX = e.clientX - win.getBoundingClientRect().left;
+        let shiftY = e.clientY - win.getBoundingClientRect().top;
+        function moveAt(pageX, pageY) {
+            win.style.left = (pageX - shiftX) + 'px';
+            win.style.top = (pageY - shiftY) + 'px';
+        }
+        function onMouseMove(e) { moveAt(e.pageX, e.pageY); }
+        document.addEventListener('mousemove', onMouseMove);
+        document.onmouseup = function () {
+            document.removeEventListener('mousemove', onMouseMove);
+            document.onmouseup = null;
+        };
+    };
+    header.ondragstart = () => false;
+
+    // Resizer logic
+    ['left', 'right', 'top', 'bottom'].forEach(dir => {
+        let resizer = document.createElement('div');
+        resizer.className = 'resizer ' + dir;
+        win.appendChild(resizer);
+        resizer.onmousedown = function (e) {
+            e.stopPropagation();
+            let startX = e.clientX, startY = e.clientY;
+            let startW = win.offsetWidth, startH = win.offsetHeight;
+            let startL = win.offsetLeft, startT = win.offsetTop;
+            function onMove(ev) {
+                if (dir === 'right') win.style.width = Math.max(320, startW + (ev.clientX - startX)) + 'px';
+                if (dir === 'left') {
+                    let newW = Math.max(320, startW - (ev.clientX - startX));
+                    win.style.width = newW + 'px';
+                    win.style.left = (startL + (ev.clientX - startX)) + 'px';
+                }
+                if (dir === 'bottom') win.style.height = Math.max(220, startH + (ev.clientY - startY)) + 'px';
+                if (dir === 'top') {
+                    let newH = Math.max(220, startH - (ev.clientY - startY));
+                    win.style.height = newH + 'px';
+                    win.style.top = (startT + (ev.clientY - startY)) + 'px';
+                }
+            }
+            function onUp() {
+                document.removeEventListener('mousemove', onMove);
+                document.removeEventListener('mouseup', onUp);
+            }
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onUp);
+        };
+    });
+
+    // Remove on close (optional: add close button if you want)
+    win.onclose = () => { clearInterval(clockInterval); win.remove(); };
 }
 
-// Helper function to open a notepad-like modal for files
-function openNotepadModal(file) {
-    // Remove any existing notepad modal
-    const existing = document.getElementById('notepad-modal');
-    if (existing) existing.remove();
 
-    const modal = document.createElement('div');
-    modal.id = 'notepad-modal';
-    modal.style.position = 'fixed';
-    modal.style.top = '50%';
-    modal.style.left = '50%';
-    modal.style.transform = 'translate(-50%, -50%)';
-    modal.style.width = '420px';
-    modal.style.background = '#23272e';
-    modal.style.color = '#fff';
-    modal.style.borderRadius = '10px';
-    modal.style.boxShadow = '0 8px 32px rgba(0,0,0,0.28)';
-    modal.style.zIndex = 5000;
-    modal.innerHTML = `
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 18px;background:#1a1d22;border-radius:10px 10px 0 0;">
-            <span><i class="ri-file-text-line"></i> ${file.name}</span>
-            <button onclick="document.getElementById('notepad-modal').remove()" style="background:none;border:none;color:#fff;font-size:1.3rem;cursor:pointer;"><i class="ri-close-line"></i></button>
-        </div>
-        <textarea style="width:95%;height:220px;margin:15px 2.5%;background:#181b20;color:#fff;border:none;border-radius:6px;padding:10px;font-size:1rem;resize:vertical;">${file.content || ''}</textarea>
-    `;
-    document.body.appendChild(modal);
+// --- Focus/Active Window Logic ---
+function focusWindow(win) {
+    document.querySelectorAll('.file-explorer-window').forEach(w => w.classList.remove('active'));
+    win.classList.add('active');
+    win.style.zIndex = ++zCounter;
 }
+
+// --- Allow open explorer from desktop icons ---
+document.getElementById('icon-myPC').ondblclick = () => openExplorerWindow('My PC');
+document.getElementById('icon-folder').ondblclick = () => openExplorerWindow('New Folder');
+document.getElementById('icon-txt').ondblclick = () => openExplorerWindow('Text File');

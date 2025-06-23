@@ -4,235 +4,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
-
+    <title>Browser-Based Desktop Interface</title>
     <link rel="stylesheet" href="Style.css">
+
 </head>
 
 <body>
     <div id="desktop">
-        <div id="taskBar">
-
-            <div id="menu">
-                <img src="./images/icons8-windows-11.svg" alt="" onclick="startMenuShow()">
-                <img src="./images/icons8-chrome.svg" alt="">
-                <img src="./images/icons8-folder.svg" alt="" onclick="MiniMizeWindow()">
-                <img src="./images/icons8-microsoft-store.svg" alt="">
-                <img src="./images/icons8-microsoft-edge.svg" alt="">
-            </div>
-            <div id="taskBar-right">
-                <i class="ri-battery-2-fill"></i>
-                <i class="ri-wifi-fill"></i>
-                <i class="ri-volume-up-fill"></i>
-                <div class="times">
-                    <span id="taskbar-time"></span>
-                    <span id="taskbar-date"></span>
-                </div>
-            </div>
+        <div class="desktop-icon" id="icon-myPC" style="left:40px;top:40px;">
+            <img src="images/icons8-monitor-40.png" alt="My PC"><span>My PC</span>
         </div>
-        <div id="startmenu">
-            <div id="iconsbar">
-                <div class="menuitems">
-                    <div class="search bar " id="searchBar">
-                        <i class="ri-search-line"></i>
-                        <input type="text" name="" id="" placeholder="Search for apps ,settings,and documents">
-                    </div>
-                    <div id="history">
-                        <h1>Pinned</h1>
-                        <div class="Allitems">
-                            <h3>All</h3>
-                            <i class="ri-arrow-right-line"></i>
-                        </div>
-                    </div>
-
-                    <div id="apps">
-                        <div class="texticons">
-                            <img src="./images/icons8-chrome.svg" alt="">
-                            <h1>chrome</h1>
-                        </div>
-                        <div class="texticons">
-                            <img src="./images/icons8-excel.svg" alt="">
-                            <h1>Excel</h1>
-                        </div>
-                        <div class="texticons">
-
-                            <img src="./images/icons8-folder.svg" alt="">
-                            <h1>Files</h1>
-                        </div>
-                        <div class="texticons">
-                            <img src="./images/icons8-microsoft-edge.svg" alt="">
-                            <h1>Micro Edge</h1>
-                        </div>
-                        <div class="texticons">
-                            <img src="./images/icons8-microsoft-store.svg" alt="">
-                            <h1>Micro Store</h1>
-
-                        </div>
-                        <div class="texticons">
-
-                            <img src="./images/icons8-photos.svg" alt="">
-                            <h1>Photos</h1>
-                        </div>
-                        <div class="texticons">
-                            <img src="./images/icons8-powerpoint.svg" alt="">
-                            <h1>PowerPoint</h1>
-
-                        </div>
-                        <div class="texticons">
-                            <img src="./images/icons8-settings.svg" alt="">
-                            <h1>Settings</h1>
-
-                        </div>
-                        <div class="texticons">
-
-                            <img src="./images/icons8-visual-studio-code.svg" alt="">
-                            <h1>VS Code</h1>
-                        </div>
-                        <div class="texticons">
-                            <img src="./images/icons8-word.svg" alt="">
-                            <h1>Ms Word</h1>
-
-                        </div>
-
-                    </div>
-                    <div id="#recomendedTask">
-                        <div id="recomended">
-                            <h1>Recomended</h1>
-                            <div class="Allitems">
-                                <h3>More</h3>
-                                <i class="ri-arrow-right-line"></i>
-                            </div>
-                        </div>
-                        <div class="recenltyUsed">
-                            <div style="display: flex; gap: 10px; " class="used">
-                                <img src="./images/icons8-visual-studio-code.svg" alt="">
-                                <div>
-                                    <h1>Visual Studio Code</h1>
-                                    <p>Frequently Used App</p>
-                                </div>
-                            </div>
-                            <div style="display: flex; gap: 10px; " class="used">
-                                <img src="./images/icons8-visual-studio-code.svg" alt="">
-                                <div>
-                                    <h1>Visual Studio Code</h1>
-                                    <p>Frequently Used App</p>
-                                </div>
-                            </div>
-                            <div style="display: flex; gap: 10px; " class="used">
-                                <img src="./images/icons8-visual-studio-code.svg" alt="">
-                                <div>
-                                    <h1>Visual Studio Code</h1>
-                                    <p>Frequently Used App</p>
-                                </div>
-                            </div>
-                            <div style="display: flex; gap: 10px;" class="used">
-                                <img src="./images/icons8-visual-studio-code.svg" alt="">
-                                <div>
-                                    <h1>Visual Studio Code</h1>
-                                    <p>Frequently Used App</p>
-                                </div>
-                            </div>
-                            <div style="display: flex; gap: 10px;" class="used">
-                                <img src="./images/icons8-visual-studio-code.svg" alt="">
-                                <div>
-                                    <h1>Visual Studio Code</h1>
-                                    <p>Frequently Used App</p>
-                                </div>
-                            </div>
-                            <div style="display: flex; gap: 10px;" class="used">
-                                <img src="./images/icons8-visual-studio-code.svg" alt="">
-                                <div>
-                                    <h1>Visual Studio Code</h1>
-                                    <p>Frequently Used App</p>
-                                </div>
-                            </div>
-
-                        </div>
-
-
-                    </div>
-                </div>
-                <h1 id="border"></h1>
-                <div class="right bar " id="rightBar">
-                    <div id="accessDevice">
-                        <img src="./images/acess-phone-image.png" alt="">
-                        <div id="description">
-
-                            <h1>Assess Your mobile device here </h1>
-                            <p>Keep up with calls,messages,and recent activity here in the Start Menu </p>
-                        </div>
-                        <div id="selectDevice">
-                            <h1>Select Device</h1>
-                            <button>Android</button>
-                            <button>iPhone</button>
-                        </div>
-                    </div>
-
-
-                </div>
-            </div>
-
+        <div class="desktop-icon" id="icon-folder" style="left:40px;top:130px;">
+            <img src="images/icons8-folder.svg" alt="New Folder"><span>New Folder</span>
         </div>
-
-        <div class="ThisPc ">
-            <div class="custom-context-menu" id="explorerContextMenu">
-                <ul>
-                    <li><i class="ri-eye-line"></i> View</li>
-                    <li><i class="ri-sort-desc"></i> Sort by</li>
-                    <li><i class="ri-group-line"></i> Group by</li>
-                    <li class="divider"></li>
-                    <li><i class="ri-arrow-go-back-line"></i> Undo Delete</li>
-                    <li class="divider"></li>
-                    <li onclick="CreateNewFolder()"><i class="ri-folder-add-line"></i> Create New Folder</li>
-                    <li onclick="createNewfiles()"><i class="ri-file-add-line"></i> Create File</li>
-                    <li><i class="ri-terminal-box-line"></i> Open with Terminal</li>
-                    <li><i class="ri-information-line"></i> Show More Info</li>
-                </ul>
-            </div>
-            <div class="explorer-window ">
-                <div class="explorer-titlebar">
-                    <span class="explorer-title"><i class="ri-folder-2-fill"></i> File Explorer</span>
-                    <div class="explorer-controls">
-                        <button class="explorer-btn" title="Minimize"><i class="ri-subtract-line"
-                                onclick="MiniMizeWindow()" id="minimize"></i></button>
-                        <button class="explorer-btn" title="Maximize/Restore"><i class="ri-checkbox-blank-line"
-                                onclick="FullSizeScreen()"></i></button>
-                        <button class="explorer-btn close" title="Close"><i class="ri-close-line"
-                                onclick="MiniMizeWindow()"></i></button>
-                    </div>
-                </div>
-                <div class="explorer-toolbar">
-                    <button class="explorer-new" onclick="CreateNewFolder()"><i class="ri-add-line"></i> New</button>
-                    <span class="explorer-details">Details</span>
-
-                    <div class="path">
-                        <h1>This PC /</h1>
-                    </div>
-                </div>
-                <div class="explorer-content">
-                    <div class="explorer-nav">
-                        <ul>
-                            <li><i class="ri-home-4-line"></i> Home</li>
-                            <li><i class="ri-desktop-line"></i> Desktop</li>
-                            <li><i class="ri-download-2-line"></i> Downloads</li>
-                            <li><i class="ri-video-line"></i> Videos</li>
-                            <li><i class="ri-music-2-line"></i> Music</li>
-                            <li><i class="ri-folder-2-line"></i> Documents</li>
-                            <li><i class="ri-computer-line"></i> This PC (OS :C)</li>
-                            <li><i class="ri-hard-drive-2-line"></i> New Volume (D:)</li>
-                            <li><i class="ri-global-line"></i> Network</li>
-                        </ul>
-                    </div>
-                    <div class="explorer-folders">
-                        <div class="folder"><i class="ri-folder-2-fill"></i> Downloads</div>
-                        <div class="folder"><i class="ri-folder-2-fill"></i> Desktop</div>
-                    </div>
-                </div>
-            </div>
+        <div class="desktop-icon" id="icon-txt" style="left:40px;top:250px;">
+            <img src="images/icons8-file.svg" alt="Text File"><span>Text File</span>
         </div>
     </div>
-
+    <div id="taskbar">
+        <button id="startBtn"><img src="images/icons8-windows-11.svg" alt="Start"></button>
+        <div class="taskbar-icon" id="msStore"><img src="images/icons8-microsoft-store.svg" alt="MS Store"></div>
+        <div class="taskbar-icon" id="fileExplorer"><img src="images/icons8-folder.svg" alt="File Explorer"></div>
+        <div class="taskbar-icon"><img src="images/icons8-microsoft-edge.svg" alt="Edge"></div>
+        <div class="taskbar-icon"><img src="images/icons8-settings.svg" alt="Settings"></div>
+        <div class="right-buttom">
+            <div class="date"></div>
+            <div class="clock"></div>
+        </div>
+    </div>
     <script src="Script.js"></script>
 </body>
 
